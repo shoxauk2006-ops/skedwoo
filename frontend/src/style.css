@@ -432,6 +432,33 @@ body.bookly-client-body{background:#f6f7f9;overflow-x:hidden}
   margin:16px 0 12px;
 }
 
+.business-social-settings{
+  margin:18px 0 8px;
+  padding:15px;
+  border:1px solid #e8eaee;
+  border-radius:14px;
+  background:#fafbfc;
+}
+.business-social-settings h3{
+  margin:0 0 12px;
+  font-size:15px;
+}
+.business-social-settings label{
+  display:block;
+  margin:12px 0 6px;
+  font-size:13px;
+  font-weight:700;
+}
+.business-social-settings input{
+  width:100%;
+  box-sizing:border-box;
+}
+.business-social-settings p{
+  margin:5px 0 0;
+  font-size:11px;
+  line-height:1.45;
+}
+
 .client-contact-button{
   width:100%;
   min-height:52px;

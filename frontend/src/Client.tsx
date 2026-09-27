@@ -819,6 +819,44 @@ export function Client({
       </button>
     )}
 
+    {business.instagram_url && (
+      <button
+        type="button"
+        className="client-contact-button"
+        onClick={() => {
+          if (tg()?.openLink) {
+            tg().openLink(business.instagram_url);
+          } else {
+            window.open(business.instagram_url, '_blank', 'noopener,noreferrer');
+          }
+        }}
+      >
+        <span className="client-contact-label">
+          {t('client.instagram', 'Instagram')}
+        </span>
+        <span className="client-contact-arrow">↗</span>
+      </button>
+    )}
+
+    {business.reviews_url && (
+      <button
+        type="button"
+        className="client-contact-button"
+        onClick={() => {
+          if (tg()?.openLink) {
+            tg().openLink(business.reviews_url);
+          } else {
+            window.open(business.reviews_url, '_blank', 'noopener,noreferrer');
+          }
+        }}
+      >
+        <span className="client-contact-label">
+          {t('client.reviews', 'Отзывы')}
+        </span>
+        <span className="client-contact-arrow">↗</span>
+      </button>
+    )}
+
   </div>
   <button
     className={

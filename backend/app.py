@@ -196,6 +196,16 @@ class Business(Base):
         default=""
     )
 
+    instagram_url: Mapped[str] = mapped_column(
+        String(255),
+        default=""
+    )
+
+    reviews_url: Mapped[str] = mapped_column(
+        String(1000),
+        default=""
+    )
+
     latitude: Mapped[Optional[float]] = mapped_column(
         nullable=True
     )
@@ -921,6 +931,12 @@ def ensure_business_schema():
             "phone":
                 "VARCHAR(40) DEFAULT ''",
 
+            "instagram_url":
+                "VARCHAR(255) DEFAULT ''",
+
+            "reviews_url":
+                "VARCHAR(1000) DEFAULT ''",
+
             "latitude":
                 float_type,
 
@@ -1576,6 +1592,8 @@ class BusinessIn(BaseModel):
     description: str = ""
     address: str = ""
     phone: str = ""
+    instagram_url: Optional[str] = Field(default=None, max_length=255)
+    reviews_url: Optional[str] = Field(default=None, max_length=1000)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     timezone: str = "Asia/Tashkent"
@@ -1654,10 +1672,13 @@ def upsert_business(x: BusinessIn, x_telegram_init_data: str = Header(default=""
         b = owner_business(db, owner_id)
         if not b:
             slug = secrets.token_urlsafe(8).replace("-", "").replace("_", "").lower()
-            b = Business(owner_telegram_id=owner_id, slug=slug, **x.model_dump())
+            payload = x.model_dump()
+            payload["instagram_url"] = payload.get("instagram_url") or ""
+            payload["reviews_url"] = payload.get("reviews_url") or ""
+            b = Business(owner_telegram_id=owner_id, slug=slug, **payload)
             db.add(b)
         else:
-            payload = x.model_dump()
+            payload = x.model_dump(exclude_unset=True)
             payload.pop("timezone", None)
             for k, v in payload.items(): setattr(b, k, v)
         db.commit(); db.refresh(b)
@@ -1809,6 +1830,8 @@ def admin_create_business(
             business_data = x.model_dump(
                 exclude={"hours"}
             )
+            business_data["instagram_url"] = business_data.get("instagram_url") or ""
+            business_data["reviews_url"] = business_data.get("reviews_url") or ""
 
             business = Business(
                 owner_telegram_id=owner_id,
@@ -2022,6 +2045,8 @@ def admin_business(
             "business_image": b.business_image,
             "address": b.address,
             "phone": b.phone,
+            "instagram_url": b.instagram_url or "",
+            "reviews_url": b.reviews_url or "",
             "latitude": b.latitude,
             "longitude": b.longitude,
             "timezone": b.timezone,
