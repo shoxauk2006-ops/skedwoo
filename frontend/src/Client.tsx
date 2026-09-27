@@ -822,7 +822,9 @@ export function Client({
     {business.instagram_url && (
       <button
         type="button"
-        className="client-contact-button"
+        className="client-contact-button client-instagram-button"
+        aria-label={t('client.instagram', 'Instagram')}
+        title={t('client.instagram', 'Instagram')}
         onClick={() => {
           if (tg()?.openLink) {
             tg().openLink(business.instagram_url);
@@ -831,29 +833,11 @@ export function Client({
           }
         }}
       >
-        <span className="client-contact-label">
-          {t('client.instagram', 'Instagram')}
-        </span>
-        <span className="client-contact-arrow">↗</span>
-      </button>
-    )}
-
-    {business.reviews_url && (
-      <button
-        type="button"
-        className="client-contact-button"
-        onClick={() => {
-          if (tg()?.openLink) {
-            tg().openLink(business.reviews_url);
-          } else {
-            window.open(business.reviews_url, '_blank', 'noopener,noreferrer');
-          }
-        }}
-      >
-        <span className="client-contact-label">
-          {t('client.reviews', 'Отзывы')}
-        </span>
-        <span className="client-contact-arrow">↗</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="2" />
+          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
+          <circle cx="17.5" cy="6.8" r="1.2" fill="currentColor" />
+        </svg>
       </button>
     )}
 

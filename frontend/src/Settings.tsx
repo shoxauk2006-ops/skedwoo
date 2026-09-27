@@ -38,14 +38,12 @@ import {
 import { MapPicker } from './MapPicker';
 
 function normalizeInstagramUrl(value: string): string | null {
-  const input = value.trim().replace(/^@/, '');
+  const input = value.trim();
   if (!input) return '';
 
   const candidate = /^https?:\/\//i.test(input)
     ? input
-    : /^(?:www\.)?instagram\.com\//i.test(input)
-      ? `https://${input}`
-      : `https://www.instagram.com/${input}`;
+    : `https://${input}`;
 
   try {
     const parsed = new URL(candidate);
@@ -57,20 +55,6 @@ function normalizeInstagramUrl(value: string): string | null {
     ) return null;
 
     return `https://www.instagram.com/${username}/`;
-  } catch {
-    return null;
-  }
-}
-
-function normalizeReviewsUrl(value: string): string | null {
-  const input = value.trim();
-  if (!input) return '';
-
-  try {
-    const parsed = new URL(input);
-    if (!['https:', 'http:'].includes(parsed.protocol)) return null;
-    parsed.protocol = 'https:';
-    return parsed.toString();
   } catch {
     return null;
   }
@@ -102,6 +86,13 @@ export function Settings({
       business?.address || ''
     );
 
+  const [selectedLocationLabel, setSelectedLocationLabel] =
+    useState(
+      business?.latitude != null && business?.longitude != null
+        ? business?.address || `${Number(business.latitude).toFixed(6)}, ${Number(business.longitude).toFixed(6)}`
+        : ''
+    );
+
   const [phone, setPhone] =
     useState(
       business?.phone || ''
@@ -109,9 +100,6 @@ export function Settings({
 
   const [instagramUrl, setInstagramUrl] =
     useState(business?.instagram_url || '');
-
-  const [reviewsUrl, setReviewsUrl] =
-    useState(business?.reviews_url || '');
 
   const [latitude, setLatitude] =
     useState(
@@ -201,16 +189,18 @@ export function Settings({
     business?.address || ''
   );
 
+  setSelectedLocationLabel(
+    business?.latitude != null && business?.longitude != null
+      ? business?.address || `${Number(business.latitude).toFixed(6)}, ${Number(business.longitude).toFixed(6)}`
+      : ''
+  );
+
   setPhone(
     business?.phone || ''
   );
 
   setInstagramUrl(
     business?.instagram_url || ''
-  );
-
-  setReviewsUrl(
-    business?.reviews_url || ''
   );
 
   setLatitude(
@@ -346,13 +336,7 @@ if (!isPhoneValid(phone)) {
 
 const normalizedInstagramUrl = normalizeInstagramUrl(instagramUrl);
 if (normalizedInstagramUrl === null) {
-  alert(t('settings.instagramInvalid', 'Введите имя пользователя Instagram или корректную ссылку на профиль.'));
-  return;
-}
-
-const normalizedReviewsUrl = normalizeReviewsUrl(reviewsUrl);
-if (normalizedReviewsUrl === null) {
-  alert(t('settings.reviewsInvalid', 'Вставьте корректную ссылку на страницу с отзывами.'));
+  alert(t('settings.instagramInvalid', 'Введите корректную ссылку на профиль Instagram.'));
   return;
 }
 
@@ -376,7 +360,6 @@ if (normalizedReviewsUrl === null) {
   phone:
     phone.trim(),
   instagram_url: normalizedInstagramUrl,
-  reviews_url: normalizedReviewsUrl,
   latitude:
     latitude === ''
       ? null
@@ -697,38 +680,21 @@ t(
         />
 
         <div className="business-social-settings">
-          <h3>{t('settings.socialLinks', 'Соцсети и отзывы')}</h3>
           <label htmlFor="business-instagram-url">
-            {t('settings.instagram', 'Instagram')}
+            {t('settings.instagram', 'Ссылка на Instagram')}
           </label>
           <input
             id="business-instagram-url"
-            type="text"
-            autoCapitalize="none"
-            autoCorrect="off"
-            placeholder="@username"
-            value={instagramUrl}
-            onChange={e => setInstagramUrl(e.target.value)}
-          />
-          <p className="muted">
-            {t('settings.instagramHint', 'Укажите имя аккаунта или ссылку на профиль.')}
-          </p>
-
-          <label htmlFor="business-reviews-url">
-            {t('settings.reviewsLink', 'Ссылка на отзывы')}
-          </label>
-          <input
-            id="business-reviews-url"
             type="url"
             inputMode="url"
             autoCapitalize="none"
             autoCorrect="off"
-            placeholder="https://..."
-            value={reviewsUrl}
-            onChange={e => setReviewsUrl(e.target.value)}
+            placeholder="https://instagram.com/username"
+            value={instagramUrl}
+            onChange={e => setInstagramUrl(e.target.value)}
           />
           <p className="muted">
-            {t('settings.reviewsHint', 'Добавьте ссылку на отзывы в Google Maps, 2GIS или другом сервисе.')}
+            {t('settings.instagramHint', 'Добавьте полную ссылку на профиль Instagram.')}
           </p>
         </div>
         
@@ -753,15 +719,11 @@ t(
 
 {latitude !== '' &&
   longitude !== '' && (
-    <p className="muted">
-      {Number(latitude).toFixed(
-        6
-      )}
-      ,{' '}
-      {Number(longitude).toFixed(
-        6
-      )}
-    </p>
+    <div className="settings-map-location" role="status">
+      <strong>📍 {t('owner.locationSelected', 'Местоположение выбрано')}</strong>
+      <span>{selectedLocationLabel || `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`}</span>
+      <small>{t('owner.saveLocationHint', 'Нажмите «Сохранить» ниже, чтобы применить местоположение.')}</small>
+    </div>
   )}
 
 {mapPickerOpen && (
@@ -787,6 +749,10 @@ t(
 
       setLongitude(
         String(lng)
+      );
+
+      setSelectedLocationLabel(
+        selectedAddress || `${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`
       );
 
       if (selectedAddress) {
